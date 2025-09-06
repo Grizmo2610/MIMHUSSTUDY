@@ -2,7 +2,9 @@ import os
 import sqlite3
 import psycopg2
 import uuid
-
+import bcrypt
+from datetime import datetime
+from utils.query import split_search_text
 
 class Database:
     def __init__(self, filename: str = "mydb"):
@@ -27,14 +29,12 @@ class Database:
             # format placeholder
             query = query.replace("%s", "?")
 
-            # thay kiểu dữ liệu đặc thù
             query = query.replace("UUID", "TEXT")
             query = query.replace("TIMESTAMPTZ", "TEXT")
             query = query.replace("DEFAULT gen_random_uuid()", "")
             query = query.replace("DEFAULT now()", "DEFAULT (datetime('now'))")
             query = query.replace("SERIAL", "INTEGER")
 
-            # Nếu insert mà không truyền id -> tự generate
             if "INSERT INTO" in query.upper() and "users" in query:
                 if len(params) and "id" not in query.lower():
                     params = [str(uuid.uuid4())] + params
@@ -71,23 +71,151 @@ class Database:
         self.conn.close()
 
     def new_tag(self, name: str):
+        """Thêm tag mới nếu chưa tồn tại"""
+        name = str(name).strip().lower()
+        exists = self.fetchone("SELECT id FROM tags WHERE name = %s;", (name, ))
+        if not exists:
+            self.execute("INSERT INTO tags (name) VALUES (%s);", [name])
+            return True
+        return False
+
+    def new_user(self, name: str, email: str, password: str, role="user"):
+        """Thêm user mới nếu email chưa tồn tại"""
+        email = email.strip().lower()
+        exists = self.fetchone("SELECT id FROM users WHERE email = %s;", (email, ))
+        if exists:
+            return False
+
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         self.execute(
-            "INSERT INTO tags (name) VALUES (%s);",
-            (name.lower(),)
+            "INSERT INTO users (uuid, email, name, pass, role) VALUES (%s, %s, %s, %s, %s);",
+            [str(uuid.uuid4()), email, name, hashed_password, role]
+        )
+        return True
+
+    def new_document(self, path: str, title: str, subject: str,
+                     author: str = None,
+                     description: str = None,
+                     course: str = None,
+                     school: str = "HUS",
+                     faculty: str = "MIM",
+                     language: str = "Vietnamese",
+                     uploaded_by: int = None,
+                     access_level: str = "public",
+                     version: int = 1):
+        """
+        Thêm document mới vào DB.
+        file_type và file_size tự lấy từ path.
+        Các tham số có default thì có thể không truyền.
+        """
+        # Lấy file_type và file_size từ path
+        file_type = os.path.splitext(path)[1][1:] if path else "Plain"  # bỏ dấu .
+        file_size = os.path.getsize(path) if path and os.path.exists(path) else 0
+
+        # Chèn document
+        self.execute(
+            """INSERT INTO documents
+               (uuid, path, school, faculty, title, description, author, created_at,
+                last_updated, version, subject, course, language, file_type, file_size,
+                uploaded_by, access_level)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
+            [
+                str(uuid.uuid4()), path, school, faculty, title, description, author,
+                datetime.now(), datetime.now(), version, subject, course, language,
+                file_type, file_size, uploaded_by, access_level
+            ]
         )
 
+        # Lấy id document vừa thêm
+        doc_id = self.fetchone("SELECT id FROM documents WHERE path = %s;", [path, ])
+        return doc_id
+
+    def add_tag_to_document(self, document_id: int, tag_name: str):
+        """Gán tag cho document"""
+        # Lấy tag id, nếu chưa tồn tại thì tạo mới
+        tag_name = tag_name.strip().lower()
         
+        tag = self.fetchone("SELECT id FROM tags WHERE name = %s;", [tag_name, ])
+        if not tag:
+            self.new_tag(tag_name)
+            tag = self.fetchone("SELECT id FROM tags WHERE name = %s;", (tag_name, ))
+
+        tag_id = tag[0]
+
+        exists = self.fetchone(
+            "SELECT * FROM document_tags WHERE document_id = %s AND tag_id = %s;",
+            (document_id, tag_id)
+        )
+        if not exists:
+            self.execute(
+                "INSERT INTO document_tags (document_id, tag_id) VALUES (%s, %s);",
+                [document_id, tag_id]
+            )
+            return True
+        return False
+    
+    def search_documents(self, text: str = None, filters: dict = None):
+        """
+        Search documents like Google Search:
+        - text: input của người dùng, có thể có cụm "..." giữ nguyên
+        - filters: dict các trường filter exact match, ví dụ {"school": "HUS"}
+        """
+        query = "SELECT * FROM documents WHERE 1=1"
+        params = []
+
+        columns = ["title", "description", "author", "subject", "school"]
+        weights = [5, 2, 3, 4, 1]  # trọng số cột, có thể điều chỉnh
+
+        # 1. Tokenize input text
+        if text:
+            tokens = split_search_text(text)
+            if tokens:
+                token_clauses = []
+                score_clauses = []
+
+                for token in tokens:
+                    # OR giữa cột, AND giữa token
+                    col_clauses = [f"{col} LIKE %s" for col in columns]
+                    token_clauses.append("(" + " OR ".join(col_clauses) + ")")
+                    
+                    # Tính score
+                    score_clauses.extend([f"CASE WHEN {col} LIKE %s THEN {w} ELSE 0 END"
+                                        for col, w in zip(columns, weights)])
+                    
+                    # params cho token search
+                    params.extend([f"%{token}%" for _ in columns])  # cho WHERE
+                    params.extend([f"%{token}%" for _ in columns])  # cho score
+
+                # AND giữa các token
+                query += " AND " + " AND ".join(token_clauses)
+
+        # 2. Filter từ dict
+        if filters:
+            for field, value in filters.items():
+                query += f" AND {field} = %s"
+                params.append(value)
+
+        # 3. Tạo query có ranking score
+        if text:
+            score_expr = " + ".join(score_clauses)
+            query = f"SELECT *, ({score_expr}) AS score FROM documents WHERE 1=1" + query[len("SELECT * FROM documents WHERE 1=1"):]
+            query += " ORDER BY score DESC"
+
+        # 4. Execute
+        return self.fetchall(query, params)
+
+
 def init_db(filename: str = "mydb", exists_ok: bool = True, reset: bool = False):
     """
-    Initialize the database schema with both 'id' (auto-increment integer) 
+    Initialize the database schema with both 'id' (auto-increment integer)
     and 'uuid' (public unique identifier).
 
     Args:
         filename (str): Name of the SQLite database file (only applies in dev).
-        exists_ok (bool): 
+        exists_ok (bool):
             - If True, tables will only be created if they do not already exist.
             - If False, existing tables will be dropped and recreated.
-        reset (bool): 
+        reset (bool):
             - If True, the entire database will be deleted and created again from scratch.
     """
 
@@ -146,8 +274,6 @@ def init_db(filename: str = "mydb", exists_ok: bool = True, reset: bool = False)
         version INT DEFAULT 1,
         subject TEXT NOT NULL,
         course TEXT,  -- Có thể null
-        document_type TEXT,  -- Ví dụ: Sách tham khảo
-        keywords TEXT[],
         language TEXT DEFAULT 'Vietnamese',
         file_type TEXT,
         file_size INT,

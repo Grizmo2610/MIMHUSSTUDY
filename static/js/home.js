@@ -48,17 +48,20 @@ signinForm.addEventListener("submit", async (e) => {
         const formData = new FormData();
         formData.append("email", email);
         formData.append("password", password);
-        console.log("???");
         const res = await fetch('/signin', {
             method: "POST",
             // headers: { "Content-Type": "application/json" },
             body: formData
         });
-
+        
+        const data = await res.json();
         if (res.ok) {
+            
+            localStorage.setItem("username", data.username);
+            localStorage.setItem("access_token", data.access_token);
+
             window.location.href = "/search";
         } else {
-            const data = await res.json();
             alert(data.detail || "Sign in failed");
         }
     } catch (err) {

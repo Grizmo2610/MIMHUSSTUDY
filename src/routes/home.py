@@ -12,7 +12,6 @@ from src.Database import Database
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
-
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request):
     db = Database()
@@ -34,7 +33,6 @@ def home(request: Request):
     db.close()
     return templates.TemplateResponse("home.html", {"request": request, "title": "Home", "user": user})
 
-
 @router.post("/signup")
 def signup(email: str = Form(...), name: str = Form(...), password: str = Form(...)):
     db = Database()
@@ -50,46 +48,22 @@ def signup(email: str = Form(...), name: str = Form(...), password: str = Form(.
     return JSONResponse({"message": "Account created successfully"})
 
 @router.post("/signin")
-def signin(
-    request: Request,
-    email: str = Form(...),
-    password: str = Form(...)
-):
+def signin(email: str = Form(...), password: str = Form(...)):
     db = Database()
-    row = db.fetchone("SELECT id, pass, name, uuid FROM users WHERE email = %s;", [email])
-
-    if not row:
-        db.close()
+    row = db.fetchone("SELECT id, pass, name FROM users WHERE email = %s;", [email])
+    if not row or not bcrypt.checkpw(password.encode(), row[1]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    stored_hash = row[1]
-    if not bcrypt.checkpw(password.encode("utf-8"), stored_hash):
-        db.close()
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    user_id = row[0]
+    username = row[2]
     token = str(uuid.uuid4())
-
-    # Random expiry 15-30 phút
-    expiry_minutes = random.randint(15, 30)
-    expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=expiry_minutes)
-
-    db.execute(
-        "INSERT INTO refresh_tokens (uuid, user_id, token_hash, expires_at) VALUES (%s, %s, %s, %s);",
-        [str(uuid.uuid4()), user_id, token, expires_at]
-    )
-    db.close()
-
-    response = RedirectResponse("/search", status_code=status.HTTP_303_SEE_OTHER)
-    response.set_cookie(
-        key="session_id",
-        value=token,
-        httponly=True,
-        max_age=expiry_minutes * 60,
-        expires=expiry_minutes * 60
-    )
-    print("???")
-    return response
+    
+    db.execute("INSERT INTO refresh_tokens (uuid, user_id, token_hash, expires_at) VALUES (%s, %s, %s, %s);",
+               [str(uuid.uuid4()), row[0], token, "2099-12-31 23:59:59"])
+    
+    return JSONResponse({
+        "username": username,
+        "access_token": token
+    })
 
 
 @router.post("/signout")

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, HTTPException, status
+from fastapi import APIRouter, Request, Form, HTTPException, status, Query
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
@@ -6,6 +6,7 @@ import uuid
 import bcrypt
 import random
 import datetime
+from typing import Optional
 
 from src.Database import Database
 
@@ -13,7 +14,12 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
+
 def home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
+
+@router.get("/auth", response_class=HTMLResponse)
+def auth(request: Request):
     db = Database()
     session_id = request.cookies.get("session_id")
 
@@ -31,7 +37,7 @@ def home(request: Request):
                 "role": row[4],
             }
     db.close()
-    return templates.TemplateResponse("home.html", {"request": request, "title": "Home", "user": user})
+    return templates.TemplateResponse("auth.html", {"request": request})
 
 @router.post("/signup")
 def signup(email: str = Form(...), name: str = Form(...), password: str = Form(...)):
@@ -86,6 +92,32 @@ def signout(request: Request):
     return response
 
 @router.get("/search")
-def search_page(request: Request):
-    return templates.TemplateResponse("search.html", {"request": request, "title": "Home", "user": "user"})
-    
+def search_documents(
+    title: str,
+    school: Optional[str] = None,
+    faculty: Optional[str] = None,
+    author: Optional[str] = None,
+    course: Optional[str] = None,
+    subject: Optional[str] = None
+):
+    db = Database()
+    sql = """
+    SELECT *
+    FROM documents
+    WHERE title ILIKE %s
+      AND (%s IS NULL OR school = %s)
+      AND (%s IS NULL OR faculty = %s)
+      AND (%s IS NULL OR author ILIKE %s)
+      AND (%s IS NULL OR course ILIKE %s)
+      AND (%s IS NULL OR subject ILIKE %s)
+    """
+    params = (
+        f"%{title}%", school, school,
+        faculty, faculty,
+        author, f"%{author}%" if author else None,
+        course, f"%{course}%" if course else None,
+        subject, f"%{subject}%" if subject else None
+    )
+    results = db.fetchall(sql, params)
+    db.close()
+    return {"results": results}

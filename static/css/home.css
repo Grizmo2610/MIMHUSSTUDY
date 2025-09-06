@@ -1,12 +1,7 @@
-.auth-container {
-    background-image: linear-gradient(to bottom right, rgba(254, 242, 242, 0.9), rgba(254, 226, 226, 0.8));
-}
-
-.input-field:focus {
+.search-input:focus {
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
-.toggle-btn.active {
-    background-color: #ef4444;
-    color: white;
+.dropdown:hover .dropdown-menu {
+    display: block;
 }

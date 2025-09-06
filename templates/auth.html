@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vie">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Auth | VNU HUS - MIM Document</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="static/js/tailwind.config.js"></script>
+        <link rel="stylesheet" href="static/css/auth.css">
+    </head>
+    <body class="bg-gray-50 min-h-screen">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div
+                class="auth-container rounded-2xl shadow-2xl overflow-hidden w-full max-w-md"
+                data-aos="zoom-in">
+                <div class="bg-primary-600 py-6 px-8 text-center">
+                    <h1 class="text-3xl font-bold text-white">Chào mừng quay trở lại</h1>
+                    <p class="text-primary-100 mt-2">Xin hãy đăng nhập vào tài khoản của bạn</p>
+                </div>
+
+                <div class="bg-white p-8">
+                    <div class="flex rounded-full bg-primary-50 p-1 mb-8">
+                        <button id="signin-btn"
+                            class="toggle-btn flex-1 py-2 px-4 rounded-full font-medium active">Đăng nhập</button>
+                        <button id="signup-btn"
+                            class="toggle-btn flex-1 py-2 px-4 rounded-full font-medium">Đăng ký</button>
+                    </div>
+
+                    <!-- Sign In Form -->
+                    <form id="signin-form" class="space-y-4">
+                        <div>
+                            <label for="email"
+                                class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email"
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                placeholder="your@email.com" required>
+                        </div>
+                        <div>
+                            <label for="password"
+                                class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                            <div class="relative">
+                                <input type="password" id="password"
+                                    class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    placeholder="••••••••" required>
+                                <button type="button"
+                                    class="toggle-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600" tabindex="-1">
+                                    <i data-feather="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg font-medium transition duration-300">Đăng
+                            nhập</button>
+                    </form>
+
+                    <!-- Sign Up Form -->
+                    <form id="signup-form" class="hidden space-y-4">
+                        <div>
+                            <label for="name"
+                                class="block text-sm font-medium text-gray-700 mb-1">Tên</label>
+                            <input type="text" id="name"
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                placeholder="Hoàng Nam" required>
+                        </div>
+                        <div>
+                            <label for="new-email"
+                                class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="new-email"
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                placeholder="your@email.com" required>
+                        </div>
+                        <div>
+                            <label for="new-password"
+                                class="block text-sm font-medium text-gray-700 mb-1">Mật
+                                khẩu</label>
+                            <div class="relative">
+                                <input type="password" id="new-password"
+                                    class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    placeholder="••••••••" required>
+                                <button type="button"
+                                    class="toggle-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600" tabindex="-1">
+                                    <i data-feather="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="confirm-password"
+                                class="block text-sm font-medium text-gray-700 mb-1">Xác
+                                nhận mật khẩu</label>
+                            <div class="relative">
+                                <input type="password" id="confirm-password"
+                                    class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    placeholder="••••••••" required>
+                                <button type="button"
+                                    class="toggle-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600" tabindex="-1">
+                                    <i data-feather="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg font-medium transition duration-300">Sign
+                            Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="static/js/auth.js"></script>
+    </body>
+</html>

@@ -34,10 +34,10 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">project_title</h3>
+<h3 align="center">MIM HUS STUDY</h3>
 
   <p align="center">
-    project_description
+    This is the web for sharing document of VNU Hanoi University of Science
     <br />
     <a href="https://github.com/Grizmo2610/MIMHUSSTUDY"><strong>Explore the docs »</strong></a>
     <br />
@@ -85,7 +85,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `Grizmo2610`, `MIMHUSSTUDY`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `Grizmo2610`, `MIMHUSSTUDY`, `twitter_handle`, `grizmo`, `gmail`, `hoangtuantu893`, `MIM HUS STUDY`, `project_description`, `project_license`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -206,7 +206,7 @@ Distributed under the project_license. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - hoangtuantu893@gmail.com
 
 Project Link: [https://github.com/Grizmo2610/MIMHUSSTUDY](https://github.com/Grizmo2610/MIMHUSSTUDY)
 
@@ -238,7 +238,7 @@ Project Link: [https://github.com/Grizmo2610/MIMHUSSTUDY](https://github.com/Gri
 [license-shield]: https://img.shields.io/github/license/Grizmo2610/MIMHUSSTUDY.svg?style=for-the-badge
 [license-url]: https://github.com/Grizmo2610/MIMHUSSTUDY/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
+[linkedin-url]: https://linkedin.com/in/grizmo
 [product-screenshot]: images/screenshot.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/

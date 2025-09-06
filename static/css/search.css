@@ -1,0 +1,7 @@
+.search-input:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}

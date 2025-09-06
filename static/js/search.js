@@ -1,39 +1,29 @@
-feather.replace();
+document.addEventListener("DOMContentLoaded", () => {
+    feather.replace();
 
-// Check if user is logged in
-const username = localStorage.getItem('username');
-const authButtons = document.getElementById('auth-buttons');
-const userDropdown = document.getElementById('user-dropdown');
+    const signinBtn = document.getElementById("redict-signin-btn");
+    const logoutBtn = document.getElementById("redict-logout-btn");
+    const usernameDisplay = document.getElementById("username-display");
 
-if (username) {
-    // User is logged in
-    document.getElementById('username-display').textContent = username;
-    userDropdown.classList.remove('hidden');
+    const username = localStorage.getItem("username") || "Anonymous";
+    usernameDisplay.textContent = username;
 
-    // Logout functionality
-    document.getElementById('logout-btn').addEventListener('click', function (e) {
-        e.preventDefault();
-        localStorage.removeItem('username');
-        window.location.reload();
+    // Hiển thị nút tương ứng
+    signinBtn.classList.toggle("hidden", username !== "Anonymous");
+    logoutBtn.classList.toggle("hidden", username === "Anonymous");
+
+    // Event Sign In
+    signinBtn.addEventListener("click", () => window.location.href = "/");
+
+    // Event Logout
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            await fetch("/signout", { method: "POST", credentials: "same-origin" });
+        } catch (err) {
+            console.error("Logout failed:", err);
+        }
+        localStorage.removeItem("username");
+        localStorage.removeItem("access_token");
+        window.location.href = "/";
     });
-} else {
-    // User is not logged in
-    authButtons.classList.remove('hidden');
-}
-
-// Search functionality
-document.getElementById('search-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const query = document.getElementById('search-input').value.trim();
-    if (query) {
-        // In a real implementation, you would call a search API here
-        const resultsContainer = document.getElementById('search-results');
-        resultsContainer.innerHTML = `
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-lg font-medium text-primary-700">Search results for: ${query}</h3>
-                        <p class="text-gray-600 mt-2">This is a placeholder for search results. In a real implementation, you would display actual search results here.</p>
-                    </div>
-                `;
-        resultsContainer.classList.remove('hidden');
-    }
 });

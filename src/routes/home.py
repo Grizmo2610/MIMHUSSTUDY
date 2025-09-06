@@ -70,12 +70,16 @@ def signin(email: str = Form(...), password: str = Form(...)):
 def signout(request: Request):
     db = Database()
     session_id = request.cookies.get("session_id")
+
     if session_id:
+        # Revoke token trong DB
         db.execute("UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = %s;", [session_id])
+
     db.close()
 
-    response = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-    response.delete_cookie("session_id")
+    # Trả JSON thay vì redirect
+    response = JSONResponse({"detail": "Signed out successfully"})
+    response.delete_cookie("session_id")  # xóa cookie session
     return response
 
 @router.get("/search")

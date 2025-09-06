@@ -1,3 +1,11 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const username = localStorage.getItem("username");
+
+    if (username) {
+        window.location.href = "/search";
+    }
+});
+
 AOS.init();
 feather.replace();
 
@@ -53,7 +61,7 @@ signinForm.addEventListener("submit", async (e) => {
             // headers: { "Content-Type": "application/json" },
             body: formData
         });
-        
+
         const data = await res.json();
         if (res.ok) {
             

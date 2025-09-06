@@ -70,7 +70,13 @@ class Database:
         self.cursor.close()
         self.conn.close()
 
+    def new_tag(self, name: str):
+        self.execute(
+            "INSERT INTO tags (name) VALUES (%s);",
+            (name.lower(),)
+        )
 
+        
 def init_db(filename: str = "mydb", exists_ok: bool = True, reset: bool = False):
     """
     Initialize the database schema with both 'id' (auto-increment integer) 

@@ -8,7 +8,7 @@ import random
 import datetime
 from typing import Optional
 
-from src.Database import Database
+from Database import Database
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -101,8 +101,7 @@ def search_documents(
     subject: Optional[str] = None
 ):
     db = Database()
-    sql = """
-    SELECT *
+    sql = """SELECT *
     FROM documents
     WHERE title ILIKE %s
       AND (%s IS NULL OR school = %s)

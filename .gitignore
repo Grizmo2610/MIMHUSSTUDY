@@ -133,3 +133,4 @@ private/
 *.ipynb
 *sqlite3
 *.db
+*custom.py

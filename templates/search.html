@@ -38,15 +38,16 @@
             <div class="w-full max-w-2xl">
                 <div class="text-center mb-8">
                     <h1
-                        class="text-5xl font-bold text-primary-700 mb-2">Search</h1>
-                    <p class="text-gray-600">Find what you're looking for</p>
+                        class="text-5xl font-bold text-primary-700 mb-2">Tìm kiếm tài liệu</h1>
+                    <p class="text-gray-600">Tìm kiếm tài liệu/ đề thi theo môn học hoặc theo tiêu đề</p>
                 </div>
 
                 <form id="search-form" class="mb-8">
                     <div class="relative">
                         <input type="text" id="search-input"
                             class="search-input w-full px-6 py-4 border border-gray-300 rounded-full focus:outline-none focus:border-primary-500"
-                            placeholder="Tìm kiếm tài liệu..." autocomplete="off">
+                            placeholder="Tìm kiếm tài liệu..."
+                            autocomplete="off">
                         <button type="submit"
                             class="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary-600 hover:text-primary-800">
                             <i data-feather="search"></i>
@@ -61,5 +62,25 @@
         </main>
 
         <script src="static/js/search.js"></script>
+        <footer class="bg-primary-50 py-6 mt-12">
+            <div class="container mx-auto px-4">
+                <div
+                    class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8">
+                    <a href="https://github.com/Grizmo2610/MIMHUSSTUDY/issues/new"
+                        class="text-primary-600 hover:text-primary-800 flex items-center">
+                        <i data-feather="alert-circle" class="mr-2"></i>
+                        Báo lỗi
+                    </a>
+                    <a href="#"
+                        class="text-primary-600 hover:text-primary-800 flex items-center">
+                        <i data-feather="file-text" class="mr-2"></i>
+                        Đóng góp tài liệu
+                    </a>
+                </div>
+                <div class="text-center text-primary-500 mt-4 text-sm">
+                    &copy; 2025 Tài liệu học tập Khoa Toán - Cơ - Tin học, Trường Đại học Khoa học Tự nhiên, ĐHQGHN
+                </div>
+            </div>
+        </footer>
     </body>
 </html>

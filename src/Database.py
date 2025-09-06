@@ -34,7 +34,7 @@ class Database:
             query = query.replace("DEFAULT now()", "DEFAULT (datetime('now'))")
             query = query.replace("SERIAL", "INTEGER")
 
-            # Nếu insert mà không truyền id → tự generate
+            # Nếu insert mà không truyền id -> tự generate
             if "INSERT INTO" in query.upper() and "users" in query:
                 if len(params) and "id" not in query.lower():
                     params = [str(uuid.uuid4())] + params
@@ -113,8 +113,7 @@ def init_db(filename: str = "mydb", exists_ok: bool = True, reset: bool = False)
         name TEXT NOT NULL,
         pass TEXT NOT NULL,
         role TEXT DEFAULT 'user',
-        created_at TIMESTAMPTZ DEFAULT now()
-    );""")
+        created_at TIMESTAMPTZ DEFAULT now());""")
 
     # Refresh tokens table
     db.execute("""CREATE TABLE IF NOT EXISTS refresh_tokens (
@@ -124,7 +123,41 @@ def init_db(filename: str = "mydb", exists_ok: bool = True, reset: bool = False)
         token_hash TEXT NOT NULL,
         revoked BOOLEAN DEFAULT FALSE,
         expires_at TIMESTAMPTZ NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT now()
-    );""")
+        created_at TIMESTAMPTZ DEFAULT now());""")
+
+    # Document table
+    db.execute("""CREATE TABLE documents (
+        id SERIAL PRIMARY KEY,
+        uuid UUID DEFAULT gen_random_uuid(),
+        path TEXT NOT NULL,
+        school TEXT DEFAULT 'HUS',
+        faculty TEXT DEFAULT 'MIM',
+        title TEXT NOT NULL,
+        description TEXT,
+        author TEXT,  -- upload user name
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        version INT DEFAULT 1,
+        subject TEXT NOT NULL,
+        course TEXT,  -- Có thể null
+        document_type TEXT,  -- Ví dụ: Sách tham khảo
+        keywords TEXT[],
+        language TEXT DEFAULT 'Vietnamese',
+        file_type TEXT,
+        file_size INT,
+        uploaded_by INT,  -- user.id
+        access_level TEXT DEFAULT 'public',
+        download_count INT DEFAULT 0);""")
+
+    # tags tables
+    db.execute("""CREATE TABLE tags (
+        id SERIAL PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL);""")
+
+    # Document tag table
+    db.execute("""CREATE TABLE document_tags (
+        document_id INT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+        tag_id INT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+        PRIMARY KEY(document_id, tag_id));""")
 
     db.close()

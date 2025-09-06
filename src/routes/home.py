@@ -37,6 +37,8 @@ def home(request: Request):
 def signup(email: str = Form(...), name: str = Form(...), password: str = Form(...)):
     db = Database()
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    email = email.strip().lower()
+    
     exists = db.fetchone("SELECT id FROM users WHERE email = %s;", [email])
     if exists:
         db.close()
@@ -50,6 +52,7 @@ def signup(email: str = Form(...), name: str = Form(...), password: str = Form(.
 @router.post("/signin")
 def signin(email: str = Form(...), password: str = Form(...)):
     db = Database()
+    email = email.strip().lower()
     row = db.fetchone("SELECT id, pass, name FROM users WHERE email = %s;", [email])
     if not row or not bcrypt.checkpw(password.encode(), row[1]):
         raise HTTPException(status_code=401, detail="Invalid credentials")

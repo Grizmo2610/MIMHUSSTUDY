@@ -2,8 +2,6 @@ from fastapi import APIRouter, Request, Form, HTTPException, status, Query
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
-import uuid
-import bcrypt
 from typing import Optional
 
 from Database import Database

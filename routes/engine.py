@@ -1,35 +1,28 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from typing import Optional
 from Database import Database
-
-router = APIRouter(prefix="/users", tags=["users"])
+from utils import *
+router = APIRouter()
 
 @router.get("/search")
-def search_documents(
+def search_documents_endpoint(
     title: str,
-    school: Optional[str] = None,
-    faculty: Optional[str] = None,
-    author: Optional[str] = None,
-    course: Optional[str] = None,
-    subject: Optional[str] = None
+    limit: int = Query(10, ge=5),
+    offset: int = Query(0, ge=0),
 ):
-    db = Database()
-    sql = """SELECT *
-    FROM documents
-    WHERE title ILIKE %s
-      AND (%s IS NULL OR school = %s)
-      AND (%s IS NULL OR faculty = %s)
-      AND (%s IS NULL OR author ILIKE %s)
-      AND (%s IS NULL OR course ILIKE %s)
-      AND (%s IS NULL OR subject ILIKE %s)
     """
-    params = (
-        f"%{title}%", school, school,
-        faculty, faculty,
-        author, f"%{author}%" if author else None,
-        course, f"%{course}%" if course else None,
-        subject, f"%{subject}%" if subject else None
-    )
-    results = db.fetchall(sql, params)
+    Endpoint gọi trực tiếp Database.search_documents với filters động
+    """
+    db = Database()
+
+    # Gọi method search_documents
+    results = db.search_documents(text=title, 
+                                #   filters=filters
+                                  )
+
+    # Paging: slice kết quả
+    paged_results = results[offset:offset+limit]
+
     db.close()
-    return {"results": results}
+
+    return {"results": result_formatter(paged_results)}
